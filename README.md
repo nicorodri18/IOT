@@ -13,7 +13,7 @@ El sistema permite:
 ## Características Principales
 - Conexión WiFi configurable.
 - Publicación y suscripción MQTT.
-- Control de motores a través de puente H (L298N o similar).
+- Control de motores a través de puente H .
 - Lectura física o simulada del sensor ultrasónico.
 - Estructura modular con variables definidas mediante preprocesador.
 - API REST sencilla con tres endpoints (`/ping`, `/move`, `/distance`).
