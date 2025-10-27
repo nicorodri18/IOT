@@ -2,6 +2,8 @@
 
 # ESP32 Car Control – API REST + MQTT + Sensor Ultrasónico
 
+## Nicolas Rodriguez - Camilo Otalora - Juan Diego Martinez 
+
 ## Descripción General
 Este proyecto implementa el control remoto de un vehículo con un ESP32, usando una API REST y comunicación MQTT.  
 El sistema permite:
