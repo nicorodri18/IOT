@@ -35,7 +35,13 @@ El sistema permite:
   <img width="1280" height="481" alt="image" src="https://github.com/user-attachments/assets/997ef80e-b072-415d-8385-c560b1692425" />
   <img width="1280" height="460" alt="image" src="https://github.com/user-attachments/assets/16acec0e-1659-427d-b624-9a2729b1d427" />
 
-  
+  ## Relación con las instrucciones del laboratorio
+- Se implementó una función `readUltrasonicSensor()` que simula o lee el sensor HC-SR04.
+- La lectura se ejecuta periódicamente y publica en el tema MQTT `esp32/car/distance`.
+- Se definieron variables de preprocesador para pines, WiFi, MQTT y servidor.
+- Se podrían trasladar las definiciones a un archivo `.h` para mejor organización.
+- El sensor físico debe protegerse con un divisor de voltaje en el pin ECHO.
+
 
 ## Temas MQTT
 - **Movimiento:** `esp32/car/instructions`
