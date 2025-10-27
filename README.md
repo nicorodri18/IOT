@@ -31,6 +31,11 @@ El sistema permite:
 - **MQTT:** Conexión y publicación de mensajes en temas distintos:
   - `esp32/car/instructions`: Recibe comandos de movimiento.
   - `esp32/car/distance`: Publica las lecturas del sensor ultrasónico.
+  <img width="1280" height="666" alt="image" src="https://github.com/user-attachments/assets/e89a1530-28d3-4aff-b447-f88b4c4121d4" />
+  <img width="1280" height="481" alt="image" src="https://github.com/user-attachments/assets/997ef80e-b072-415d-8385-c560b1692425" />
+  <img width="1280" height="460" alt="image" src="https://github.com/user-attachments/assets/16acec0e-1659-427d-b624-9a2729b1d427" />
+
+  
 
 ## Temas MQTT
 - **Movimiento:** `esp32/car/instructions`
