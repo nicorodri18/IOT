@@ -209,6 +209,10 @@ void setup() {
 espClient.setCACert(ca_pem);           // CA que firma al broker
 espClient.setCertificate(client_crt);  // Cert del cliente (PEM)
 espClient.setPrivateKey(client_key);   // Clave privada (PEM)
+
+
+<img width="878" height="397" alt="image" src="https://github.com/user-attachments/assets/ee31e698-9f7f-4a5f-93bb-2d109cbf7b62" />
+
 ```
 3. En el broker, habilite `require_certificate true` y confíe en la CA que firma a sus clientes.
 
