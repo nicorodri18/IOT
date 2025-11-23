@@ -89,15 +89,16 @@ A[Interfaz Web] -->|HTTP| B[API REST ESP32]
 A -->|MQTT TLS| C[Broker HiveMQ 8883]
 
 subgraph ESP32
-    B --> D[Motores DC <br> PWM + L298N]
+    B --> D[Motores DC PWM L298N]
     B --> E[Sensor HC-SR04]
-    B --> F[Encoder <br> Odometría]
-    B --> G[OLED 1.3"]
+    B --> F[Encoder Odometria]
+    B --> G[OLED 1.3]
 end
 
 E -->|Distancia| B
 F -->|Pulsos| B
 B -->|Publicación JSON| C
+
 ```
 
 ---
