@@ -1,56 +1,154 @@
 # IOT
 
-# ESP32 Car Control – API REST + MQTT + Sensor Ultrasónico
+# ESP32 Car Control – API REST + MQTT (TLS) + Sensor Ultrasónico + Odometría + Web UI
 
-## Nicolas Rodriguez - Camilo Otalora - Juan Diego Martinez 
+## Nicolas Rodriguez - Camilo Otalora - Juan Diego Martinez
 
 ## Descripción General
-Este proyecto implementa el control remoto de un vehículo con un ESP32, usando una API REST y comunicación MQTT.  
-El sistema permite:
-- Recibir instrucciones de movimiento (adelante, atrás, izquierda, derecha, detener).
-- Publicar lecturas periódicas del sensor ultrasónico HC-SR04.
-- Operar en modo físico o simulado.
-- Exponer endpoints HTTP para pruebas o integración.
+
+Este proyecto implementa el control remoto de un vehículo 2WD usando un ESP32 con:
+
+* API REST v1 para control y monitoreo.
+* Comunicación segura MQTT con TLS/SSL.
+* Sensor ultrasónico HC-SR04 para detección de obstáculos.
+* Bloqueo inteligente SOLO hacia adelante.
+* Encoder para odometría (velocidad y distancia).
+* Pantalla OLED SH1106 para visualizar telemetría.
+* Interfaz web embebida para controlar el carro.
+
+El sistema combina control, seguridad, telemetría y visualización en tiempo real.
+
+---
 
 ## Características Principales
-- Conexión WiFi configurable.
-- Publicación y suscripción MQTT.
-- Control de motores a través de puente H .
-- Lectura física o simulada del sensor ultrasónico.
-- Estructura modular con variables definidas mediante preprocesador.
-- API REST sencilla con tres endpoints (`/ping`, `/move`, `/distance`).
+
+* Conexión WiFi + servidor web integrado.
+* API REST v1:
+
+  * `/api/v1/healthcheck`
+  * `/api/v1/move`
+* MQTT con cifrado TLS (puerto 8883) usando `WiFiClientSecure`.
+* Control de motores mediante puente H (IN1–IN4, ENA/ENB) con PWM.
+* Lectura de sensor ultrasónico y bloqueo de seguridad.
+* Odometría con encoder y cálculo de velocidad.
+* Pantalla OLED con estado en tiempo real.
+* Endpoints legacy para la interfaz web.
+
+---
 
 ## Estructura del Código
-- **Variables de preprocesador:** Configuración de WiFi, MQTT, pines de motores, pines del sensor, parámetros del servidor y constantes de seguridad.
-- **Funciones de motor:** Controlan el movimiento del vehículo (adelante, atrás, izquierda, derecha, detener).
-- **Funciones del sensor:** Lectura o simulación del HC-SR04 y publicación periódica en un tema MQTT.
-- **Endpoints REST:**
-  - `/ping`: Verifica disponibilidad del servidor.
-  - `/move`: Recibe instrucciones de movimiento (`dir`, `speed`, `time`).
-  - `/distance`: Retorna la lectura actual del sensor.
-- **MQTT:** Conexión y publicación de mensajes en temas distintos:
-  - `esp32/car/instructions`: Recibe comandos de movimiento.
-  - `esp32/car/distance`: Publica las lecturas del sensor ultrasónico.
-  <img width="1280" height="666" alt="image" src="https://github.com/user-attachments/assets/e89a1530-28d3-4aff-b447-f88b4c4121d4" />
-  <img width="1280" height="481" alt="image" src="https://github.com/user-attachments/assets/997ef80e-b072-415d-8385-c560b1692425" />
-  <img width="1280" height="460" alt="image" src="https://github.com/user-attachments/assets/16acec0e-1659-427d-b624-9a2729b1d427" />
 
-  ## Relación con las instrucciones del laboratorio
-- Se implementó una función `readUltrasonicSensor()` que simula o lee el sensor HC-SR04.
-- La lectura se ejecuta periódicamente y publica en el tema MQTT `esp32/car/distance`.
-- Se definieron variables de preprocesador para pines, WiFi, MQTT y servidor.
-- Se podrían trasladar las definiciones a un archivo `.h` para mejor organización.
-- El sensor físico debe protegerse con un divisor de voltaje en el pin ECHO.
+* **Variables de preprocesador:** define de WiFi, MQTT, TLS, pines de motores, pines del sensor, encoder, distancias y parámetros globales.
+* **Funciones de motor:** Adelante, atrás, izquierda, derecha y detener. Gestión del PWM y dirección.
+* **Funciones del sensor ultrasónico:** Medición real con HC-SR04 y detección de obstáculos con distancia mínima segura.
+* **Bloqueo de seguridad:** Impide avanzar cuando hay un obstáculo pero permite retroceder y girar.
+* **Odometría:** Uso de interrupciones, cálculo de distancia y velocidad.
+* **Pantalla OLED:** Visualización de dirección, velocidad, odometría, distancia e IP.
+* **Servidor Web + API REST v1:** Control de movimiento, monitoreo y compatibilidad con interfaz gráfica.
+* **MQTT TLS:** Publicación de distancia, obstáculos y odometría en formato JSON.
 
+### **Endpoints REST:**
 
-## Temas MQTT
-- **Movimiento:** `esp32/car/instructions`
-- **Sensor:** `esp32/car/distance`
+* `/api/v1/healthcheck`: Estado del sistema, WiFi, MQTT TLS, dirección, distancia y flags.
+* `/api/v1/move`: Recibe `direction` y `speed` para ejecutar movimiento.
+
+### **Endpoints Legacy:**
+
+* `/move` (usado por la UI)
+* `/distance`
+* `/odometry`
+* `/`
+
+### **Temas MQTT:**
+
+* `esp32/car/distance`
+* `esp32/car/odometry`
+* `esp32/car/emergency`
+* `esp32/car/instructions` 
+
+---
+
+## Relación con las instrucciones del laboratorio
+
+* Se implementó lectura de sensor ultrasónico con bloqueo solo adelante.
+* Publicación periódica en MQTT de distancia y estado del obstáculo.
+* Uso de define para pines, WiFi, MQTT y seguridad.
+* API REST funcional con endpoints requeridos.
+* Se agregó odometría con encoder como mejora adicional.
+* Se añadió interfaz web embebida totalmente funcional.
+* Se configuró conexión MQTT cifrada mediante TLS.
+
+---
+
+## Diagrama de Arquitectura (Mermaid)
+
+```mermaid
+flowchart TD
+
+A[Interfaz Web] -->|HTTP| B[API REST ESP32]
+A -->|MQTT TLS| C[Broker HiveMQ 8883]
+
+subgraph ESP32
+    B --> D[Motores DC <br> PWM + L298N]
+    B --> E[Sensor HC-SR04]
+    B --> F[Encoder <br> Odometría]
+    B --> G[OLED 1.3"]
+end
+
+E -->|Distancia| B
+F -->|Pulsos| B
+B -->|Publicación JSON| C
+```
+
+---
 
 ## Ejemplo de Publicación del Sensor
+
 ```json
 {
-  "distance": 134.25,
-  "unit": "cm",
-  "timestamp": 485312
+  "distance": 18.5,
+  "obstacle": true
 }
+```
+
+## Ejemplo de Publicación de Odometría
+
+```json
+{
+  "velocity_kmh": 0.42,
+  "distance_meters": 3.12
+}
+```
+
+---
+
+## Temas MQTT
+
+* **Distancia:** `esp32/car/distance`
+* **Odometría:** `esp32/car/odometry`
+* **Emergencias:** `esp32/car/emergency`
+* **Instrucciones (opcional):** `esp32/car/instructions`
+
+---
+
+---
+
+## Limitaciones del Sistema
+
+* TLS configurado como `setInsecure()` sin validación.
+* No hay autenticación en API o UI.
+* Solo un sensor frontal.
+* MQTT usado solo para publicar.
+* Control remoto requiere estar en la misma red.
+
+---
+
+## Posibilidades de Mejora
+
+* Activar validación de certificado TLS (`setCACert`).
+* Añadir sensores laterales y trasero.
+* Panel de control externo en Node-RED o Grafana.
+* Implementar autenticación (JWT / API KEY).
+* Soporte para control autónomo.
+* Integrar servicios IoT (AWS IoT, EMQX, Azure).
+  ``
