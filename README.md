@@ -35,6 +35,30 @@ El sistema combina control, seguridad, telemetría y visualización en tiempo re
 * Endpoints legacy para la interfaz web.
 
 ---
+## Librerías utilizadas
+
+En este proyecto se utilizaron las siguientes librerías:
+
+- `WiFi.h`  
+  Permite conectar el ESP32 a una red WiFi en modo estación (STA) o punto de acceso (AP).
+
+- `WiFiClientSecure.h`  
+  Proporciona el cliente seguro (TLS/SSL) para establecer conexiones cifradas, por ejemplo con el broker MQTT en el puerto 8883.
+
+- `WebServer.h`  
+  Implementa un servidor web HTTP ligero en el ESP32, usado para servir la interfaz web y la API REST (`/api/v1/...`).
+
+- `PubSubClient.h`  
+  Cliente MQTT para publicar y suscribirse a tópicos. En este proyecto se utiliza sobre `WiFiClientSecure` para habilitar MQTT con TLS.
+
+- `Wire.h`  
+  Librería para comunicación I2C, utilizada principalmente para comunicar el ESP32 con la pantalla OLED.
+
+- `Adafruit_GFX.h`  
+  Librería gráfica base de Adafruit que proporciona primitivas de dibujo (texto, líneas, rectángulos, etc.) para pantallas.
+
+- `Adafruit_SH110X.h`  
+  Controlador específico para pantallas OLED basadas en el chip SH1106/SH1107. Se usa para manejar la pantalla OLED 1.3" del carro.
 
 ## Estructura del Código
 
