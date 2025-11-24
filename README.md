@@ -65,7 +65,6 @@ El sistema combina control, seguridad, telemetría y visualización en tiempo re
 * `esp32/car/odometry`
 * `esp32/car/emergency`
 * `esp32/car/instructions` 
-
 ---
 
 ## Relación con las instrucciones del laboratorio
@@ -89,16 +88,15 @@ A[Interfaz Web] -->|HTTP| B[API REST ESP32]
 A -->|MQTT TLS| C[Broker HiveMQ 8883]
 
 subgraph ESP32
-    B --> D[Motores DC PWM L298N]
+    B --> D[Motores DC <br> PWM + L298N]
     B --> E[Sensor HC-SR04]
-    B --> F[Encoder Odometria]
-    B --> G[OLED 1.3]
+    B --> F[Encoder <br> Odometría]
+    B --> G[OLED 1.3"]
 end
 
 E -->|Distancia| B
 F -->|Pulsos| B
 B -->|Publicación JSON| C
-
 ```
 
 ---
@@ -128,11 +126,10 @@ B -->|Publicación JSON| C
 * **Distancia:** `esp32/car/distance`
 * **Odometría:** `esp32/car/odometry`
 * **Emergencias:** `esp32/car/emergency`
-* **Instrucciones (opcional):** `esp32/car/instructions`
+* **Instrucciones :** `esp32/car/instructions`
 
 ---
 
----
 
 ## Limitaciones del Sistema
 
@@ -153,3 +150,82 @@ B -->|Publicación JSON| C
 * Soporte para control autónomo.
 * Integrar servicios IoT (AWS IoT, EMQX, Azure).
   ``
+
+## Diagrama de Estados (Mermaid)
+
+```mermaid
+stateDiagram-v2
+    [*] --> STOP
+
+    STOP --> FORWARD : dir = forward
+    STOP --> BACKWARD : dir = backward
+    STOP --> LEFT : dir = left
+    STOP --> RIGHT : dir = right
+
+    FORWARD --> STOP : dir = stop
+    BACKWARD --> STOP : dir = stop
+    LEFT --> STOP : dir = stop
+    RIGHT --> STOP : dir = stop
+
+    FORWARD --> BLOCKED : obstacleAhead = true
+    BLOCKED --> STOP : dir = stop
+    BLOCKED --> BACKWARD : dir = backward
+    BLOCKED --> LEFT : dir = left
+    BLOCKED --> RIGHT : dir = right
+```
+
+---
+
+## Diagrama de Bloques del Firmware (Mermaid)
+
+```mermaid
+flowchart LR
+
+subgraph ESP32[Firmware ESP32]
+    A[Web Server API REST] --> B[Módulo Movimiento PWM]
+    A --> C[Módulo Sensores Ultrasonico]
+    A --> D[Módulo Odometría Encoder ISR]
+
+    C --> A
+    D --> A
+
+    A --> E[Módulo MQTT TLS]
+    C --> E
+    D --> E
+
+    A --> F[Pantalla OLED]
+    C --> F
+    D --> F
+end
+```
+
+---
+
+## Diagrama API REST (Mermaid)
+
+```mermaid
+sequenceDiagram
+    participant UI as Cliente / Web UI
+    participant API as API REST ESP32
+    participant SEC as Sensor Ultrasónico
+    participant MOT as Motores
+    participant ODO as Odometría
+    participant MQTT as MQTT TLS 8883
+
+    UI->>API: POST /api/v1/move (direction, speed)
+    API->>SEC: checkProximitySafety()
+
+    alt Obstáculo < 20 cm
+        SEC->>API: obstacleAhead = true
+        API->>MOT: stopMotors()
+    else No obstáculo
+        SEC->>API: obstacleAhead = false
+        API->>MOT: ejecutarMovimiento()
+    end
+
+    API->>ODO: Solicitar odometría
+    SEC->>MQTT: Publicar distancia JSON
+    ODO->>MQTT: Publicar odometría JSON
+
+    API->>UI: Respuesta JSON (estado actual)
+```
