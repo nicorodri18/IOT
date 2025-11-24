@@ -60,6 +60,25 @@ En este proyecto se utilizaron las siguientes librerías:
 - `Adafruit_SH110X.h`  
   Controlador específico para pantallas OLED basadas en el chip SH1106/SH1107. Se usa para manejar la pantalla OLED 1.3" del carro.
 
+
+  ## Uso de memoria
+
+De acuerdo al reporte del IDE de Arduino para este proyecto:
+
+- **Memoria de programa (Flash)**  
+  - Uso: **1 094 863 bytes (83%)**  
+  - Máximo disponible: **1 310 720 bytes**
+
+- **Memoria dinámica (RAM)**  
+  - Variables globales: **48 024 bytes (14%)**  
+  - Espacio libre para variables locales: **279 656 bytes**  
+  - Máximo disponible: **327 680 bytes**
+
+Estos valores indican que el sketch aprovecha una parte importante de la memoria de programa del ESP32, pero aún mantiene un margen cómodo tanto en Flash como en RAM para futuras extensiones o ajustes.
+
+<img width="1280" height="515" alt="image" src="https://github.com/user-attachments/assets/9d6c6ab0-009b-427f-846d-29cefa45f3d3" />
+
+
 ## Estructura del Código
 
 * **Variables de preprocesador:** define de WiFi, MQTT, TLS, pines de motores, pines del sensor, encoder, distancias y parámetros globales.
