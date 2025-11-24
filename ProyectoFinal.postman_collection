@@ -1,0 +1,493 @@
+{
+  "info": {
+    "name": "ESP32 Car API v1",
+    "description": "API REST para control de carro ESP32 con sensores ultrasónicos y encoder.\n\n**Autores:** Camilo Otalora, Juan Diego Martinez, Nicolas Rodriguez\n\n**Características:**\n- Control de movimiento continuo\n- Seguridad con bloqueo por proximidad (solo adelante)\n- MQTT con TLS/SSL para sensores\n- Odometría con encoder\n\n**Instrucciones:**\n1. Cambia la variable {{base_url}} por la IP de tu ESP32\n2. Ejemplo: http://192.168.1.100 o http://10.205.103.179",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://10.205.103.179",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "API REST v1",
+      "item": [
+        {
+          "name": "Healthcheck",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/healthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "healthcheck"]
+            },
+            "description": "**GET /api/v1/healthcheck**\n\nVerifica el estado del sistema ESP32.\n\n**Respuesta incluye:**\n- Estado de conexión WiFi\n- Estado de conexión MQTT\n- Indicador de TLS activo\n- Dirección IP\n- Tiempo de actividad\n- Dirección actual del carro\n- Estado del obstáculo\n- Distancia del sensor ultrasónico"
+          },
+          "response": [
+            {
+              "name": "Healthcheck Success",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{base_url}}/api/v1/healthcheck",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "healthcheck"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"status\": \"ok\",\n    \"wifi_connected\": true,\n    \"mqtt_connected\": true,\n    \"mqtt_tls\": true,\n    \"ip\": \"10.205.103.179\",\n    \"uptime_ms\": 45230,\n    \"current_direction\": \"STOP\",\n    \"obstacle_ahead\": false,\n    \"distance_cm\": 156.42\n}"
+            }
+          ]
+        },
+        {
+          "name": "Move - Forward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "forward",
+                  "type": "text",
+                  "description": "Dirección: forward, backward, left, right, stop"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "type": "text",
+                  "description": "Velocidad PWM: 220-255"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            },
+            "description": "**POST /api/v1/move**\n\nMueve el carro hacia adelante de forma continua.\n\n**Parámetros (application/x-www-form-urlencoded):**\n- `direction` (requerido): forward, backward, left, right, stop\n- `speed` (opcional): 220-255 (default: 240)\n\n**Nota:** El movimiento es continuo hasta que se envíe otro comando."
+          },
+          "response": [
+            {
+              "name": "Move Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/x-www-form-urlencoded"
+                  }
+                ],
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "key": "direction",
+                      "value": "forward"
+                    },
+                    {
+                      "key": "speed",
+                      "value": "240"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/v1/move",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "v1", "move"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n    \"status\": \"ok\",\n    \"direction\": \"forward\",\n    \"speed\": 240,\n    \"current_state\": \"ADELANTE\",\n    \"obstacle_ahead\": false,\n    \"timestamp\": 48532\n}"
+            }
+          ]
+        },
+        {
+          "name": "Move - Backward",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "backward",
+                  "type": "text"
+                },
+                {
+                  "key": "speed",
+                  "value": "230",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            },
+            "description": "Mueve el carro hacia atrás de forma continua."
+          },
+          "response": []
+        },
+        {
+          "name": "Move - Left",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "left",
+                  "type": "text"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            },
+            "description": "Gira el carro a la izquierda de forma continua."
+          },
+          "response": []
+        },
+        {
+          "name": "Move - Right",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "right",
+                  "type": "text"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            },
+            "description": "Gira el carro a la derecha de forma continua."
+          },
+          "response": []
+        },
+        {
+          "name": "Move - Stop",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "stop",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            },
+            "description": "Detiene completamente el carro."
+          },
+          "response": []
+        },
+        {
+          "name": "Move - GET (Alternativo)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/move?direction=forward&speed=240",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"],
+              "query": [
+                {
+                  "key": "direction",
+                  "value": "forward",
+                  "description": "forward, backward, left, right, stop"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "description": "220-255"
+                }
+              ]
+            },
+            "description": "**GET /api/v1/move** (alternativo)\n\nMétodo GET también soportado para mayor flexibilidad.\n\nUsa query parameters en lugar de body."
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints principales de la API REST v1 según requerimientos del proyecto."
+    },
+    {
+      "name": "Legacy Endpoints",
+      "item": [
+        {
+          "name": "Get Distance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/distance",
+              "host": ["{{base_url}}"],
+              "path": ["distance"]
+            },
+            "description": "Obtiene la distancia actual del sensor ultrasónico y estado de obstáculo.\n\n**Nota:** Los datos del sensor también se publican por MQTT en el tópico `esp32/car/distance`"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Odometry",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/odometry",
+              "host": ["{{base_url}}"],
+              "path": ["odometry"]
+            },
+            "description": "Obtiene datos de odometría del encoder:\n- Velocidad en km/h\n- Distancia recorrida en metros"
+          },
+          "response": []
+        },
+        {
+          "name": "Move Legacy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/move?dir=f&speed=240",
+              "host": ["{{base_url}}"],
+              "path": ["move"],
+              "query": [
+                {
+                  "key": "dir",
+                  "value": "f",
+                  "description": "f=forward, b=backward, l=left, r=right, x=stop"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "description": "220-255"
+                }
+              ]
+            },
+            "description": "Endpoint legacy usado por la interfaz web.\n\n**Direcciones:**\n- `f` = forward\n- `b` = backward\n- `l` = left\n- `r` = right\n- `x` = stop"
+          },
+          "response": []
+        }
+      ],
+      "description": "Endpoints legacy para compatibilidad con la interfaz web existente."
+    },
+    {
+      "name": "Tests de Validación",
+      "item": [
+        {
+          "name": "Test 1: Sistema Online",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Sistema está OK\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"ok\");",
+                  "});",
+                  "",
+                  "pm.test(\"WiFi conectado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.wifi_connected).to.be.true;",
+                  "});",
+                  "",
+                  "pm.test(\"TLS activo\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.mqtt_tls).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/healthcheck",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "healthcheck"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test 2: Movimiento Válido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Movimiento ejecutado\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.status).to.eql(\"ok\");",
+                  "    pm.expect(jsonData.direction).to.exist;",
+                  "    pm.expect(jsonData.speed).to.be.within(220, 255);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "direction",
+                  "value": "forward",
+                  "type": "text"
+                },
+                {
+                  "key": "speed",
+                  "value": "240",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Test 3: Error sin parámetros",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message presente\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.error).to.exist;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": []
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/move",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "move"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "description": "Tests automatizados para validar el funcionamiento de la API."
+    }
+  ]
+}
